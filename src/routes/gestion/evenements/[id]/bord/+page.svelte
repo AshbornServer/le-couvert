@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { compteur } from '$lib/compteur';
 	import { euros } from '$lib/argent';
 	import { dateLongue, heureBelge } from '$lib/dates';
 	let { data, form } = $props();
@@ -111,17 +112,23 @@
 	{:else}
 		<div class="grille quatre">
 			<div class="chiffre">
-				<div class="valeur">{data.chiffres.reservations}</div>
+				<div class="valeur" use:compteur={{ valeur: data.chiffres.reservations }}>
+					{data.chiffres.reservations}
+				</div>
 				<div class="quoi">réservations</div>
 			</div>
 			<div class="chiffre">
-				<div class="valeur">{data.chiffres.couverts}</div>
+				<div class="valeur" use:compteur={{ valeur: data.chiffres.couverts }}>
+					{data.chiffres.couverts}
+				</div>
 				<div class="quoi">
 					couverts{#if data.places.capacite}<br /><span class="petit">sur {data.places.capacite}</span>{/if}
 				</div>
 			</div>
 			<div class="chiffre">
-				<div class="valeur">{euros(data.chiffres.encaisse_centimes)}</div>
+				<div class="valeur" use:compteur={{ valeur: data.chiffres.encaisse_centimes, format: euros }}>
+					{euros(data.chiffres.encaisse_centimes)}
+				</div>
 				<div class="quoi">
 					sur le compte du club{#if data.chiffres.frais_centimes > 0}<br /><span class="petit"
 							>hors {euros(data.chiffres.frais_centimes)} de frais</span
@@ -129,7 +136,13 @@
 				</div>
 			</div>
 			<div class="chiffre">
-				<div class="valeur" style="color:var(--orange)">{euros(data.chiffres.attendu_centimes)}</div>
+				<div
+					class="valeur"
+					style="color:var(--orange)"
+					use:compteur={{ valeur: data.chiffres.attendu_centimes, format: euros }}
+				>
+					{euros(data.chiffres.attendu_centimes)}
+				</div>
 				<div class="quoi">{data.chiffres.a_payer} réservations à encaisser</div>
 			</div>
 		</div>
@@ -468,6 +481,33 @@
 	.inscrits li {
 		padding: 18px 0;
 		border-bottom: 1px solid var(--bord);
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		@keyframes glisse {
+			from {
+				opacity: 0;
+				transform: translateX(-10px);
+			}
+		}
+		/* Les dix premières seulement : au-delà, la cascade devient une attente. */
+		.inscrits li:nth-child(-n + 10) {
+			animation: glisse var(--moyen) var(--elan) both;
+		}
+		.inscrits li:nth-child(2) {
+			animation-delay: 30ms;
+		}
+		.inscrits li:nth-child(3) {
+			animation-delay: 60ms;
+		}
+		.inscrits li:nth-child(4) {
+			animation-delay: 90ms;
+		}
+		.inscrits li:nth-child(5) {
+			animation-delay: 120ms;
+		}
+		.inscrits li:nth-child(n + 6) {
+			animation-delay: 150ms;
+		}
 	}
 	.inscrits li:last-child {
 		border-bottom: none;

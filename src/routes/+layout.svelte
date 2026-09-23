@@ -1,6 +1,23 @@
 <script lang="ts">
 	import '../app.css';
+	import { onNavigate } from '$app/navigation';
 	import { MARQUE } from '$lib/marque';
+
+	/**
+	 * Les pages se croisent au lieu de sauter. Le navigateur qui ne connaît pas
+	 * `startViewTransition` navigue normalement, sans rien perdre.
+	 */
+	onNavigate((navigation) => {
+		if (!document.startViewTransition) return;
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+		return new Promise((resoudre) => {
+			document.startViewTransition(async () => {
+				resoudre();
+				await navigation.complete;
+			});
+		});
+	});
 	let { data, children } = $props();
 </script>
 

@@ -79,8 +79,13 @@
 
 	const quantite = (id: number) => quantites[id] ?? 0;
 
+	/* La ligne qui vient de changer, pour lui faire battre son nombre. */
+	let derniereTouchee = $state<number | null>(null);
+
 	function changer(ligne: Ligne, pas: number) {
 		if (inerte) return;
+		derniereTouchee = ligne.id;
+		setTimeout(() => (derniereTouchee = null), 240);
 		const actuel = quantite(ligne.id);
 		let suivant = Math.max(0, actuel + pas);
 		const plafond = ligne.restant ?? null;
@@ -218,7 +223,9 @@
 								onclick={() => changer(ligne, -1)}
 								disabled={inerte || quantite(ligne.id) === 0}>−</button
 							>
-							<span class="nombre" aria-live="polite">{quantite(ligne.id)}</span>
+							<span class="nombre" class:bat={derniereTouchee === ligne.id} aria-live="polite">
+								{quantite(ligne.id)}
+							</span>
 							<button
 								type="button"
 								aria-label="Ajouter un {ligne.nom}"
@@ -232,7 +239,7 @@
 
 			<div class="total">
 				<span>Total</span>
-				<strong>{euros(total)}</strong>
+				<strong class:bat={derniereTouchee !== null}>{euros(total)}</strong>
 			</div>
 		</div>
 	{/if}
@@ -574,12 +581,19 @@
 		margin: 20px 0 0;
 	}
 
+	@keyframes remonte {
+		from {
+			transform: translateY(100%);
+		}
+	}
+
 	/* La barre collante n'a de sens que sur un écran étroit. */
 	.barre-basse {
 		display: none;
 	}
 	@media (max-width: 720px) {
 		.barre-basse {
+			animation: remonte var(--moyen) var(--elan) both;
 			position: sticky;
 			bottom: 0;
 			z-index: 20;

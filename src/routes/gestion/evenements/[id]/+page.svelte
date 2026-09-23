@@ -381,7 +381,12 @@
 			<a class="retour" href="/gestion">← Mes soupers</a>
 			<a class="retour" href="/gestion/evenements/{data.evenement.id}/bord">Les inscrits</a>
 			<span class="espace"></span>
-			<span class="etat" class:souci={etat === 'erreur'}>
+			<span
+				class="etat"
+				class:souci={etat === 'erreur'}
+				class:envoie={etat === 'envoi'}
+				class:fait={etat === 'enregistre'}
+			>
 				{#if etat === 'envoi'}Enregistrement…
 				{:else if etat === 'erreur'}Non enregistré
 				{:else if enregistreLe}Enregistré à {enregistreLe}
@@ -815,6 +820,26 @@
 		font-size: 16px;
 		color: var(--encre-douce);
 	}
+	@media (prefers-reduced-motion: no-preference) {
+		/* Le point qui clignote pendant que ça part, et se fige quand c'est fait. */
+		@keyframes pulse {
+			50% {
+				opacity: 0.35;
+			}
+		}
+		.etat.envoie {
+			animation: pulse 900ms ease-in-out infinite;
+		}
+		@keyframes coche-etat {
+			from {
+				opacity: 0;
+				transform: translateY(-4px);
+			}
+		}
+		.etat.fait {
+			animation: coche-etat var(--moyen) var(--elan);
+		}
+	}
 	.etat.souci {
 		color: var(--rouge);
 		font-weight: 700;
@@ -1009,6 +1034,17 @@
 	}
 	.apercu.ouvert {
 		display: flex;
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		@keyframes apercu-entre {
+			from {
+				opacity: 0;
+				transform: translateX(16px);
+			}
+		}
+		.apercu.ouvert {
+			animation: apercu-entre var(--moyen) var(--elan) both;
+		}
 	}
 	.apercu-barre {
 		display: flex;

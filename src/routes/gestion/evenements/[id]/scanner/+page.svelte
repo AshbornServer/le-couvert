@@ -279,6 +279,54 @@
 		pointer-events: none;
 	}
 
+	@media (prefers-reduced-motion: no-preference) {
+		@keyframes verdict-arrive {
+			from {
+				opacity: 0;
+				transform: scale(0.94);
+			}
+		}
+		@keyframes coche {
+			0% {
+				transform: scale(0.4);
+			}
+			55% {
+				transform: scale(1.18);
+			}
+		}
+		/* Le rouge secoue la tête : on comprend avant d'avoir lu. */
+		@keyframes non {
+			0%, 100% { transform: translateX(0); }
+			20% { transform: translateX(-12px); }
+			40% { transform: translateX(10px); }
+			60% { transform: translateX(-6px); }
+			80% { transform: translateX(4px); }
+		}
+		.verdict {
+			animation: verdict-arrive 180ms var(--elan) both;
+		}
+		.verdict.valide .grand {
+			animation: coche 340ms var(--elan) both;
+		}
+		.verdict.deja,
+		.verdict.annule,
+		.verdict.inconnu,
+		.verdict.autre_evenement {
+			animation:
+				verdict-arrive 180ms var(--elan) both,
+				non 420ms var(--elan) 120ms both;
+		}
+		/* Le viseur respire pendant qu'on cherche le code. */
+		@keyframes respire {
+			50% {
+				border-color: rgba(255, 255, 255, 0.45);
+			}
+		}
+		.viseur {
+			animation: respire 2.4s ease-in-out infinite;
+		}
+	}
+
 	.verdict {
 		position: fixed;
 		inset: 0;

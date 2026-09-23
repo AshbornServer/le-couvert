@@ -108,6 +108,29 @@
 		min-height: 60px;
 		justify-content: flex-start;
 	}
+	@media (prefers-reduced-motion: no-preference) {
+		@keyframes modele-pose {
+			from {
+				opacity: 0;
+				transform: translateY(12px) rotate(-1deg);
+			}
+		}
+		.modeles form {
+			animation: modele-pose var(--ample) var(--elan) both;
+		}
+		.modeles form:nth-child(2) {
+			animation-delay: 60ms;
+		}
+		.modeles form:nth-child(3) {
+			animation-delay: 120ms;
+		}
+		.modeles form:nth-child(4) {
+			animation-delay: 180ms;
+		}
+		.modeles form:nth-child(5) {
+			animation-delay: 240ms;
+		}
+	}
 
 	/* Une liste, pas un tableau : sept colonnes ne tiennent pas sur un téléphone. */
 	.soupers {
@@ -118,6 +141,26 @@
 	.soupers li {
 		padding: 16px 0;
 		border-bottom: 1px solid var(--bord);
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		@keyframes souper-entre {
+			from {
+				opacity: 0;
+				transform: translateY(10px);
+			}
+		}
+		.soupers li {
+			animation: souper-entre var(--moyen) var(--elan) both;
+		}
+		.soupers li:nth-child(2) {
+			animation-delay: 50ms;
+		}
+		.soupers li:nth-child(3) {
+			animation-delay: 100ms;
+		}
+		.soupers li:nth-child(n + 4) {
+			animation-delay: 150ms;
+		}
 	}
 	.soupers li:last-child {
 		border-bottom: none;

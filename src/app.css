@@ -447,3 +447,179 @@ code {
 		padding: 0;
 	}
 }
+
+/* ═══════════════════════════════════════════════════════════════ mouvement
+ *
+ * Le mouvement répond à un geste : ce qui bouge dit ce qui a changé.
+ * Tout est en CSS, rien en JavaScript, et tout est enfermé dans
+ * `prefers-reduced-motion: no-preference` — sur un appareil réglé pour
+ * réduire les animations, l'interface est simplement immobile.
+ */
+
+:root {
+	--vite: 120ms;
+	--moyen: 220ms;
+	--ample: 420ms;
+	/* La même courbe que le ticket posé sur la table. */
+	--elan: cubic-bezier(0.16, 0.84, 0.28, 1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	/* ------------------------------------------------- entrée des sections */
+	@keyframes monte {
+		from {
+			opacity: 0;
+			transform: translateY(14px);
+		}
+	}
+
+	.carte,
+	.chiffre {
+		animation: monte var(--ample) var(--elan) both;
+	}
+
+	/* Une cascade courte : l'œil suit, il n'attend pas. */
+	.page > .carte:nth-of-type(1),
+	.chiffre:nth-child(1) {
+		animation-delay: 0ms;
+	}
+	.page > .carte:nth-of-type(2),
+	.chiffre:nth-child(2) {
+		animation-delay: 45ms;
+	}
+	.page > .carte:nth-of-type(3),
+	.chiffre:nth-child(3) {
+		animation-delay: 90ms;
+	}
+	.page > .carte:nth-of-type(4),
+	.chiffre:nth-child(4) {
+		animation-delay: 135ms;
+	}
+	.page > .carte:nth-of-type(n + 5) {
+		animation-delay: 180ms;
+	}
+
+	/* --------------------------------------------------------- les boutons */
+	.bouton {
+		transition:
+			background var(--vite) ease,
+			border-color var(--vite) ease,
+			transform var(--vite) var(--elan),
+			box-shadow var(--vite) var(--elan);
+	}
+	/* Le bouton s'enfonce : l'ombre se referme sous le doigt. */
+	.bouton:not(:disabled):hover {
+		transform: translateY(-1px);
+		box-shadow: 0 3px 0 var(--couleur-sombre);
+	}
+	.bouton:not(:disabled):active {
+		transform: translateY(1px);
+		box-shadow: none;
+	}
+	.bouton.second:not(:disabled):hover {
+		box-shadow: 0 3px 0 var(--bord-champ);
+	}
+	.bouton.danger:not(:disabled):hover {
+		box-shadow: 0 3px 0 var(--rouge);
+	}
+
+	/* ------------------------------------------------------- les messages */
+	@keyframes deroule {
+		from {
+			opacity: 0;
+			transform: translateY(-8px);
+			max-height: 0;
+		}
+		to {
+			opacity: 1;
+			transform: none;
+			max-height: 40rem;
+		}
+	}
+	.message {
+		animation: deroule var(--moyen) var(--elan) both;
+	}
+
+	/* ------------------------------------------------------ les étiquettes */
+	@keyframes surgit {
+		from {
+			opacity: 0;
+			transform: scale(0.8);
+		}
+	}
+	.etiquette {
+		animation: surgit var(--moyen) var(--elan) both;
+	}
+
+	/* --------------------------------------------------------- les champs */
+	input,
+	select,
+	textarea {
+		transition:
+			border-color var(--vite) ease,
+			box-shadow var(--vite) ease;
+	}
+	input:focus,
+	select:focus,
+	textarea:focus {
+		border-color: var(--encre);
+	}
+
+	/* ----------------------------------------------------------- les liens */
+	a {
+		transition: color var(--vite) ease;
+	}
+
+	/* ------------------------------------------- un chiffre qui a changé */
+	@keyframes bat {
+		40% {
+			transform: scale(1.14);
+		}
+	}
+	.bat {
+		animation: bat var(--moyen) var(--elan);
+	}
+
+	/* --------------------------------------------------- le tiroir ouvert */
+	@keyframes tiroir {
+		from {
+			opacity: 0;
+			transform: translateY(-6px);
+		}
+	}
+	details[open] > *:not(summary) {
+		animation: tiroir var(--moyen) var(--elan) both;
+	}
+
+	/* ----------------------------------- les transitions entre les pages */
+	@keyframes entre-page {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+	}
+	@keyframes sort-page {
+		to {
+			opacity: 0;
+			transform: translateY(-8px);
+		}
+	}
+	::view-transition-old(root) {
+		animation: sort-page 140ms var(--elan) both;
+	}
+	::view-transition-new(root) {
+		animation: entre-page var(--moyen) var(--elan) both;
+	}
+}
+
+/* À l'impression, rien ne bouge et rien n'est masqué. */
+@media print {
+	*,
+	*::before,
+	*::after {
+		animation: none !important;
+		transition: none !important;
+		opacity: 1 !important;
+		transform: none !important;
+	}
+}
