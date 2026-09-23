@@ -1,0 +1,1 @@
+ALTER TABLE `evenements` ADD `recap_envoye_le` integer;

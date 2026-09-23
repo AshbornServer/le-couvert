@@ -1,0 +1,1 @@
+ALTER TABLE `clubs` ADD `mollie_profil_id` text;
