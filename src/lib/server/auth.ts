@@ -112,7 +112,8 @@ export async function envoyerLienMagique(
 export async function envoyerInvitation(
 	emailBrut: string,
 	nomClub: string,
-	origine: string
+	origine: string,
+	lienMollie: string | null = null
 ): Promise<void> {
 	const email = normaliserEmail(emailBrut);
 	const jeton = randomBytes(32).toString('base64url');
@@ -132,12 +133,24 @@ export async function envoyerInvitation(
 <p style="font-size:15px;color:#666">
 	Ce lien est valable 30 minutes. Passé ce délai, demandez-en un nouveau sur
 	<a href="${origine}/connexion">${origine}/connexion</a> avec cette même adresse.
-</p>`;
+</p>
+${
+	lienMollie
+		? `<p style="font-size:17px;margin-top:24px;padding-top:18px;border-top:1px solid #ded9cf">
+	<strong>Pour encaisser en ligne</strong><br />
+	Si vous voulez que les gens puissent payer par Bancontact, reliez le compte
+	bancaire du club en une fois :
+	<a href="${lienMollie}">relier notre compte</a>.<br />
+	<span style="font-size:15px;color:#666">Ce n'est pas obligatoire : sans ça, les
+	réservations se paient sur place ou par virement.</span>
+</p>`
+		: ''
+}`;
 
 	await envoyerMail({
 		a: email,
 		sujet: `${nomClub} — votre accès aux réservations`,
-		texte: `Bonjour,\n\nLe site de réservation des soupers de ${nomClub} est prêt, et vous en êtes l'organisateur.\n\nPas de mot de passe à retenir, ce lien vous connecte directement (valable 30 minutes) :\n\n${lien}\n\nPassé ce délai, demandez-en un nouveau sur ${origine}/connexion avec cette même adresse.`,
+		texte: `Bonjour,\n\nLe site de réservation des soupers de ${nomClub} est prêt, et vous en êtes l'organisateur.\n\nPas de mot de passe à retenir, ce lien vous connecte directement (valable 30 minutes) :\n\n${lien}\n\nPassé ce délai, demandez-en un nouveau sur ${origine}/connexion avec cette même adresse.${lienMollie ? `\n\nPour encaisser en ligne (facultatif), reliez le compte du club :\n${lienMollie}` : ''}`,
 		html: gabaritHtml(`${nomClub} — vos réservations`, corps)
 	});
 }

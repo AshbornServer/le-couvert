@@ -3,10 +3,12 @@ import { lireSession, menageAuth } from '$lib/server/auth';
 import { lancerMenageRgpd } from '$lib/server/rgpd';
 import { lancerRappels } from '$lib/server/rappels';
 import { libererBlocagesExpires } from '$lib/server/places';
+import { menageOuvertures } from '$lib/server/club';
 
 /** Les tâches de fond : ménage, rappels, blocages de paiement périmés. */
 async function taches() {
 	menageAuth();
+	menageOuvertures();
 	lancerMenageRgpd();
 	libererBlocagesExpires();
 	try {

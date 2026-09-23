@@ -62,17 +62,17 @@
 		<div class="carte">
 			<h2>Mes soupers</h2>
 
-			<ul class="soupers">
+			<ul class="liste">
 				{#each data.evenements as e (e.id)}
 					<li>
 						<a class="titre" href="/gestion/evenements/{e.id}/bord">
 							{e.titre || 'Sans titre'}
 						</a>
-						<p class="quand">
+						<p class="detail">
 							{dateLongue(e.date) || 'date à compléter'}{#if e.heure_debut}
 								— {heureBelge(e.heure_debut)}{/if}
 						</p>
-						<p class="etat">
+						<p class="marques">
 							<span class="etiquette {couleurStatut[e.statut]}">{libelleStatut[e.statut]}</span>
 							<span class="muet">
 								{e.couverts} {e.couverts === 1 ? 'couvert' : 'couverts'}{#if e.capacite}
@@ -80,7 +80,7 @@
 								{#if Number(e.encaisse) > 0} · {euros(Number(e.encaisse))}{/if}
 							</span>
 						</p>
-						<p class="quoi">
+						<p class="actes">
 							{#if bientot(e.date) && e.statut === 'publie'}
 								<a class="bouton" href="/gestion/evenements/{e.id}/scanner">Mode entrée</a>
 							{/if}
@@ -132,64 +132,4 @@
 		}
 	}
 
-	/* Une liste, pas un tableau : sept colonnes ne tiennent pas sur un téléphone. */
-	.soupers {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-	.soupers li {
-		padding: 16px 0;
-		border-bottom: 1px solid var(--bord);
-	}
-	@media (prefers-reduced-motion: no-preference) {
-		@keyframes souper-entre {
-			from {
-				opacity: 0;
-				transform: translateY(10px);
-			}
-		}
-		.soupers li {
-			animation: souper-entre var(--moyen) var(--elan) both;
-		}
-		.soupers li:nth-child(2) {
-			animation-delay: 50ms;
-		}
-		.soupers li:nth-child(3) {
-			animation-delay: 100ms;
-		}
-		.soupers li:nth-child(n + 4) {
-			animation-delay: 150ms;
-		}
-	}
-	.soupers li:last-child {
-		border-bottom: none;
-	}
-	.titre {
-		font-family: var(--titre);
-		font-weight: 800;
-		letter-spacing: -0.02em;
-		font-size: 22px;
-		color: var(--encre);
-		text-decoration-color: var(--bord-champ);
-		text-underline-offset: 4px;
-		display: inline-block;
-		min-height: 32px;
-	}
-	.quand {
-		margin: 4px 0 0;
-	}
-	.etat {
-		display: flex;
-		gap: 10px;
-		align-items: center;
-		flex-wrap: wrap;
-		margin: 8px 0 0;
-	}
-	.quoi {
-		display: flex;
-		gap: 10px;
-		flex-wrap: wrap;
-		margin: 12px 0 0;
-	}
 </style>

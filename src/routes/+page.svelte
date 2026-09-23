@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { MARQUE } from '$lib/marque';
+	import { DOMAINE, MARQUE } from '$lib/marque';
 	let { data, form } = $props();
 
 	const v = $derived(form?.valeurs);
@@ -59,7 +59,7 @@
 					de la cuisine.
 				</p>
 				<div class="actes">
-					<a class="acte premier" href="#demander">Demander l’espace de mon club</a>
+					<a class="acte premier" href="#demander">Ouvrir l’espace de mon club</a>
 					{#if data.demo}
 						<a class="acte second" href={data.demo}>Voir un vrai souper</a>
 					{/if}
@@ -263,22 +263,31 @@
 
 		<!-- --------------------------------------------------------------- demande -->
 		<section class="bloc demander" id="demander">
-			{#if form?.envoye}
-				<h2>C’est noté</h2>
+			{#if form?.ouvert}
+				<h2>C’est ouvert</h2>
 				<p class="chapeau">
-					La demande pour <strong>{form.club}</strong> est arrivée. Nous ouvrons l’espace du club
-					et vous recevez votre lien de connexion par e-mail. D’ici là, vous n’avez rien à faire.
+					L’espace de <strong>{form.club}</strong> existe déjà : il est à l’adresse
+					<code>{DOMAINE}/{form.slug}</code>. Votre accès vient de partir vers
+					<strong>{form.email}</strong> — cliquez le lien dans l’e-mail et vous êtes chez vous.
 				</p>
-				<a class="acte premier" href="/">Revenir au début</a>
+				<p class="petitesse">
+					Rien à valider, rien à attendre. Si l’e-mail n’arrive pas, demandez-en un nouveau depuis
+					<a href="/connexion">la page de connexion</a>, avec cette même adresse.
+				</p>
 			{:else}
-				<h2>Demander l’espace de votre club</h2>
+				<h2>Ouvrez l’espace de votre club</h2>
 				<p class="chapeau">
-					Six lignes, et on s’occupe du reste. Nous ouvrons l’espace et vous envoyons votre lien
-					de connexion.
+					Quatre lignes, et c’est ouvert tout de suite. Vous recevez votre accès par e-mail dans
+					la minute : aucune validation, personne à attendre.
 				</p>
 
 				{#if form?.erreur}
-					<p class="souci">{form.erreur}</p>
+					<p class="souci">
+						{form.erreur}
+						{#if form.dejaInscrit}
+							<br /><a href="/connexion">Se connecter</a>
+						{/if}
+					</p>
 				{/if}
 
 				<form
@@ -330,7 +339,7 @@
 					</div>
 
 					<button class="acte premier" type="submit" disabled={envoi}>
-						{envoi ? 'Un instant…' : 'Envoyer ma demande'}
+						{envoi ? 'Ouverture…' : 'Ouvrir mon espace'}
 					</button>
 					<p class="petitesse">
 						Ces informations servent uniquement à ouvrir votre espace.

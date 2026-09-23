@@ -49,19 +49,21 @@
 	</p>
 
 	<!-- Où en est ce club, en trois lignes. -->
-	<ol class="avancement">
-		<li class="fait">Club créé</li>
+	<ul class="liste avancement">
+		<li class="fait">Espace ouvert</li>
 		<li class={data.organisateurs.some((o) => o.derniere_connexion_le) ? 'fait' : 'attente'}>
 			{#if data.organisateurs.some((o) => o.derniere_connexion_le)}
-				Organisateur connecté
+				L’organisateur s’est connecté
 			{:else}
-				Organisateur invité, jamais connecté
+				L’organisateur a reçu son accès, il ne s’est pas encore connecté
 			{/if}
 		</li>
 		<li class={data.mollieRelie ? 'fait' : 'attente'}>
-			{data.mollieRelie ? 'Paiement en ligne actif' : 'Paiement en ligne à relier par le club'}
+			{data.mollieRelie
+				? 'Paiement en ligne actif'
+				: 'Paiement en ligne pas relié — le lien est parti avec l’invitation'}
 		</li>
-	</ol>
+	</ul>
 
 	{#if data.cree}
 		<div class="message ok">
@@ -363,31 +365,25 @@
 
 <style>
 	.avancement {
-		list-style: none;
-		margin: 0 0 20px;
-		padding: 0;
+		margin-bottom: 20px;
 	}
-	.avancement li {
+	.avancement :global(li) {
 		position: relative;
 		padding: 10px 0 10px 32px;
-		border-bottom: 1px solid var(--bord);
 	}
-	.avancement li:last-child {
-		border-bottom: none;
-	}
-	.avancement li::before {
+	.avancement :global(li)::before {
 		position: absolute;
 		left: 2px;
 		font-weight: 700;
 	}
-	.avancement .fait::before {
+	.avancement :global(.fait)::before {
 		content: '✓';
 		color: var(--vert);
 	}
-	.avancement .attente {
+	.avancement :global(.attente) {
 		color: var(--orange);
 	}
-	.avancement .attente::before {
+	.avancement :global(.attente)::before {
 		content: '•';
 	}
 	.lien-danger {

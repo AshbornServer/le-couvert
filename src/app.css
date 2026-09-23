@@ -390,7 +390,74 @@ summary:focus-visible {
 	-webkit-overflow-scrolling: touch;
 }
 
+/* ---------------------------------------------------------- listes d'objets
+ *
+ * Un seul motif pour les soupers, les inscrits, les clubs et les demandes :
+ * un titre, une ligne de détail, des étiquettes, des boutons. Jamais un
+ * tableau — sept colonnes ne tiennent pas sur un téléphone.
+ */
+
+.liste {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.liste > li {
+	padding: 18px 0;
+	border-bottom: 1px solid var(--bord);
+}
+.liste > li:last-child {
+	border-bottom: none;
+}
+.liste .titre {
+	font-family: var(--titre);
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	font-size: 21px;
+	line-height: 1.1;
+	color: var(--encre);
+	display: inline-block;
+}
+.liste .detail {
+	margin: 5px 0 0;
+}
+.liste .marques {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	flex-wrap: wrap;
+	margin: 8px 0 0;
+}
+.liste .actes {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin: 12px 0 0;
+}
+/* Une ligne qui ne compte plus : annulée, suspendue, écartée. */
+.liste > li.sorti {
+	background: #f7f6f3;
+	margin: 0 -16px;
+	padding: 18px 16px;
+}
+
 /* --------------------------------------------------------------- chiffres */
+
+.chiffres {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+	margin-bottom: 20px;
+}
+@media (min-width: 900px) {
+	.chiffres {
+		grid-template-columns: repeat(4, 1fr);
+		gap: 16px;
+	}
+	.chiffres.trois {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
 
 .chiffre {
 	background: var(--carte);
@@ -497,6 +564,30 @@ code {
 	}
 	.page > .carte:nth-of-type(n + 5) {
 		animation-delay: 180ms;
+	}
+
+	/* ------------------------------------------- les lignes d'une liste */
+	@keyframes glisse {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+	}
+	/* Les huit premières seulement : au-delà, la cascade devient une attente. */
+	.liste > li:nth-child(-n + 8) {
+		animation: glisse var(--moyen) var(--elan) both;
+	}
+	.liste > li:nth-child(2) {
+		animation-delay: 35ms;
+	}
+	.liste > li:nth-child(3) {
+		animation-delay: 70ms;
+	}
+	.liste > li:nth-child(4) {
+		animation-delay: 105ms;
+	}
+	.liste > li:nth-child(n + 5) {
+		animation-delay: 140ms;
 	}
 
 	/* --------------------------------------------------------- les boutons */

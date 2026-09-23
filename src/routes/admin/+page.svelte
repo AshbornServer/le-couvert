@@ -1,15 +1,16 @@
 <script lang="ts">
-	import { euros } from '$lib/argent';
 	import { enhance } from '$app/forms';
+	import { compteur } from '$lib/compteur';
+	import { euros } from '$lib/argent';
 	let { data, form } = $props();
 
 	const mois = new Date().toLocaleDateString('fr-BE', { month: 'long', year: 'numeric' });
 
 	const libelleMollie: Record<string, string> = {
-		non_relie: 'Mollie non relié',
-		en_attente: 'Mollie en attente',
-		relie: 'Mollie relié',
-		erreur: 'Mollie en erreur'
+		non_relie: 'sans paiement en ligne',
+		en_attente: 'liaison en cours',
+		relie: 'paiement en ligne actif',
+		erreur: 'liaison en erreur'
 	};
 	const couleurMollie: Record<string, string> = {
 		non_relie: 'gris',
@@ -17,145 +18,175 @@
 		relie: 'vert',
 		erreur: 'rouge'
 	};
+
+	/** « il y a 2 heures », « il y a 3 jours ». */
+	function depuis(secondes: number): string {
+		const ecart = Math.max(0, Math.floor(Date.now() / 1000) - secondes);
+		if (ecart < 3600) return `il y a ${Math.max(1, Math.round(ecart / 60))} min`;
+		if (ecart < 86400) return `il y a ${Math.round(ecart / 3600)} h`;
+		const jours = Math.round(ecart / 86400);
+		return `il y a ${jours} ${jours === 1 ? 'jour' : 'jours'}`;
+	}
+
+	let aSuspendre = $state<number | null>(null);
 </script>
 
-<svelte:head><title>Super-admin</title></svelte:head>
+<svelte:head><title>Les clubs</title></svelte:head>
 
-<div class="page large">
-	<div class="rangee" style="justify-content:space-between;margin-bottom:16px">
-		<h1 style="margin:0">Les clubs</h1>
-		<a class="bouton" href="/admin/clubs/nouveau">+ Nouveau club</a>
-	</div>
+<div class="page">
+	<h1>Les clubs</h1>
+	<p class="muet">
+		Les clubs ouvrent leur espace tout seuls depuis la page d’accueil. Vous n’avez rien à valider :
+		cet écran sert à voir ce qui se passe, et à suspendre un club s’il le faut.
+	</p>
 
 	{#if form?.ok}<div class="message ok">{form.ok}</div>{/if}
+	{#if form?.erreur}<div class="message erreur">{form.erreur}</div>{/if}
 
-	{#if data.demandes.length > 0}
-		<section class="carte" style="border-color:var(--couleur)">
-			<h2>Demandes à traiter ({data.demandes.length})</h2>
-			<p class="muet petit">
-				Venues de la page d’accueil. Un clic ouvre l’espace du club et envoie son accès à
-				l’organisateur.
-			</p>
-
-			<ul class="demandes">
-				{#each data.demandes as d (d.id)}
-					<li>
-						<div>
-							<strong>{d.club}</strong>{#if d.ville} <span class="muet">— {d.ville}</span>{/if}
-							<br />
-							<span class="petit">{d.contact} · {d.email}{#if d.telephone} · {d.telephone}{/if}</span>
-							{#if d.evenement}<br /><span class="petit muet">{d.evenement}</span>{/if}
-						</div>
-						<div class="rangee">
-							<form method="POST" action="?/ouvrir_demande" use:enhance>
-								<input type="hidden" name="demande_id" value={d.id} />
-								<button class="bouton" type="submit">Ouvrir le club</button>
-							</form>
-							<form method="POST" action="?/refuser_demande" use:enhance>
-								<input type="hidden" name="demande_id" value={d.id} />
-								<button class="bouton second" type="submit">Écarter</button>
-							</form>
-						</div>
-					</li>
-				{/each}
-			</ul>
-		</section>
-	{/if}
-
-	<div class="grille trois" style="margin-bottom:20px">
+	<div class="chiffres trois">
 		<div class="chiffre">
-			<div class="valeur">{data.clubs.length}</div>
-			<div class="quoi">clubs</div>
+			<div class="valeur" use:compteur={{ valeur: data.clubs.length }}>{data.clubs.length}</div>
+			<div class="quoi">
+				clubs{#if data.nouveauxCetteSemaine > 0}<br /><span class="petit"
+						>dont {data.nouveauxCetteSemaine} cette semaine</span
+					>{/if}
+			</div>
 		</div>
 		<div class="chiffre">
-			<div class="valeur">{data.totalCouverts}</div>
-			<div class="quoi">couverts payés (tout confondu)</div>
+			<div class="valeur" use:compteur={{ valeur: data.totalCouverts }}>{data.totalCouverts}</div>
+			<div class="quoi">couverts payés, tout confondu</div>
 		</div>
 		<div class="chiffre">
-			<div class="valeur">{euros(data.totalCommissions)}</div>
+			<div class="valeur" use:compteur={{ valeur: data.totalCommissions, format: euros }}>
+				{euros(data.totalCommissions)}
+			</div>
 			<div class="quoi">mes commissions — {mois}</div>
 		</div>
 	</div>
 
+	<div class="rangee" style="margin-bottom:16px">
+		<a class="bouton" href="/admin/clubs/nouveau">+ Ouvrir un club moi-même</a>
+	</div>
+
 	<div class="carte">
+		<h2>Tous les clubs</h2>
+
 		{#if data.clubs.length === 0}
-			<p class="muet">Aucun club pour l’instant.</p>
-			<a class="bouton" href="/admin/clubs/nouveau">Créer le premier club</a>
+			<p class="muet">
+				Aucun club pour l’instant. Le premier qui remplit le formulaire de la page d’accueil
+				apparaîtra ici tout seul.
+			</p>
 		{:else}
-			<div class="defilant">
-				<table class="tableau">
-					<thead>
-						<tr>
-							<th>Club</th>
-							<th>Adresse</th>
-							<th>Paiement</th>
-							<th class="nombre">Événements</th>
-							<th class="nombre">Couverts</th>
-							<th class="nombre">Commission</th>
-							<th class="nombre">Ce mois</th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each data.clubs as club (club.id)}
-							<tr>
-								<td>
-									<strong>{club.nom}</strong>
-									{#if !club.actif}<br /><span class="etiquette gris">désactivé</span>{/if}
-								</td>
-								<td><code class="petit">/{club.slug}</code></td>
-								<td>
-									<span class="etiquette {couleurMollie[club.mollie_statut]}">
-										{libelleMollie[club.mollie_statut]}
-									</span>
-								</td>
-								<td class="nombre">{club.evenements}</td>
-								<td class="nombre">{club.couverts}</td>
-								<td class="nombre">
-									{euros(club.commission_centimes)}
-									<br /><span class="petit muet"
-										>{club.frais_payes_par === 'participant' ? 'participant' : 'club'}</span
-									>
-								</td>
-								<td class="nombre">{euros(Number(club.commissions_mois))}</td>
-								<td><a class="retour" href="/admin/clubs/{club.id}">Réglages</a></td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
+			<ul class="liste">
+				{#each data.clubs as club (club.id)}
+					<li class:sorti={!club.actif}>
+						<a class="titre" href="/admin/clubs/{club.id}">{club.nom}</a>
+
+						<p class="detail">
+							<code class="petit">/{club.slug}</code>
+							{#if club.venuDuSite}
+								<span class="muet"> · ouvert tout seul {depuis(club.venuDuSite.cree_le)}</span>
+							{/if}
+						</p>
+
+						{#if club.venuDuSite}
+							<p class="petit muet" style="margin:2px 0 0">
+								{club.venuDuSite.contact} · {club.venuDuSite.email}
+								{#if club.venuDuSite.ville} · {club.venuDuSite.ville}{/if}
+								{#if club.venuDuSite.evenement} · « {club.venuDuSite.evenement} »{/if}
+							</p>
+						{/if}
+
+						<div class="marques">
+							{#if !club.actif}
+								<span class="etiquette rouge">suspendu</span>
+							{/if}
+							<span class="etiquette {couleurMollie[club.mollie_statut]}">
+								{libelleMollie[club.mollie_statut]}
+							</span>
+							<span class="muet petit">
+								{club.publies}
+								{club.publies === 1 ? 'souper publié' : 'soupers publiés'} · {club.couverts} couverts
+								· {euros(club.commission_centimes)} par couvert, payé par {club.frais_payes_par ===
+								'participant'
+									? 'le participant'
+									: 'le club'}
+							</span>
+						</div>
+
+						<div class="marques">
+							<strong>{euros(Number(club.commissions_mois))}</strong>
+							<span class="muet petit">ce mois-ci</span>
+						</div>
+
+						<div class="actes">
+							<a class="bouton second" href="/admin/clubs/{club.id}">Réglages</a>
+							<a class="bouton second" href="/{club.slug}">Voir sa page</a>
+
+							{#if aSuspendre === club.id}
+								<form method="POST" action="?/suspendre" use:enhance>
+									<input type="hidden" name="club_id" value={club.id} />
+									<input type="hidden" name="actif" value={club.actif ? 'non' : 'oui'} />
+									<button class="bouton danger" type="submit">
+										{club.actif ? 'Oui, suspendre' : 'Oui, réactiver'}
+									</button>
+								</form>
+								<button class="bouton second" type="button" onclick={() => (aSuspendre = null)}>
+									Non
+								</button>
+							{:else}
+								<button class="bouton second" type="button" onclick={() => (aSuspendre = club.id)}>
+									{club.actif ? 'Suspendre' : 'Réactiver'}
+								</button>
+							{/if}
+						</div>
+
+						{#if aSuspendre === club.id && club.actif}
+							<p class="message info" style="margin:12px 0 0">
+								Sa page publique et l’espace de ses organisateurs se ferment tout de suite. Les
+								réservations déjà prises ne sont pas touchées.
+							</p>
+						{/if}
+					</li>
+				{/each}
+			</ul>
 		{/if}
 	</div>
 
 	<div class="carte">
-		<h2>Tâches automatiques</h2>
-		<p class="muet petit">
-			Rappels aux participants deux jours avant, récapitulatif aux organisateurs le matin même,
-			clôture des événements passés, purge des données à douze mois. Tout tourne seul chaque heure ;
-			ce bouton sert à ne pas attendre.
-		</p>
-		<form method="POST" action="?/taches" use:enhance>
-			<button class="bouton second" type="submit">Relancer les rappels et le ménage</button>
+		<h2>Ce qui tourne tout seul</h2>
+		<ul class="liste">
+			<li>
+				<span class="titre" style="font-size:18px">Ouverture des clubs</span>
+				<p class="detail muet">
+					Un club remplit le formulaire de l’accueil, son espace est créé et son accès part par
+					e-mail dans la minute. Trois ouvertures par heure et par connexion, au maximum.
+				</p>
+			</li>
+			<li>
+				<span class="titre" style="font-size:18px">Rappels et clôtures</span>
+				<p class="detail muet">
+					Deux jours avant : un e-mail à chaque participant. Le matin même : le récapitulatif aux
+					organisateurs. Le lendemain : le souper passe en « terminé ».
+				</p>
+			</li>
+			<li>
+				<span class="titre" style="font-size:18px">Paiements et places</span>
+				<p class="detail muet">
+					Les paiements en ligne bloquent la place quinze minutes, puis la relâchent. Mollie
+					prévient dès qu’un paiement arrive.
+				</p>
+			</li>
+			<li>
+				<span class="titre" style="font-size:18px">Effacement des données</span>
+				<p class="detail muet">
+					Douze mois après un souper, les noms, e-mails et téléphones des participants sont
+					effacés. Les totaux du club restent.
+				</p>
+			</li>
+		</ul>
+		<form method="POST" action="?/taches" use:enhance style="margin-top:8px">
+			<button class="bouton second" type="submit">Relancer maintenant</button>
 		</form>
 	</div>
 </div>
-
-<style>
-	.demandes {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-	.demandes li {
-		display: flex;
-		gap: 16px;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
-		padding: 14px 0;
-		border-bottom: 1px solid var(--bord);
-	}
-	.demandes li:last-child {
-		border-bottom: none;
-	}
-</style>

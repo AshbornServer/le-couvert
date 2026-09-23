@@ -349,11 +349,11 @@
 				{/if}
 			</p>
 		{:else}
-			<ul class="inscrits">
+			<ul class="liste">
 				{#each visibles as r (r.id)}
-					<li class:parti={parti(r.statut_paiement)}>
-						<div class="qui">
-							<span class="nom">{r.nom} {r.prenom}</span>
+					<li class:sorti={parti(r.statut_paiement)}>
+						<div class="marques">
+							<span class="titre">{r.nom} {r.prenom}</span>
 							<span class="etiquette {couleurStatut[r.statut_paiement]}">
 								{libelleStatut[r.statut_paiement]}
 							</span>
@@ -472,83 +472,6 @@
 		border-bottom: none;
 	}
 
-	/* Une liste de cartes, pas un tableau : l'organisateur est sur son téléphone. */
-	.inscrits {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-	.inscrits li {
-		padding: 18px 0;
-		border-bottom: 1px solid var(--bord);
-	}
-	@media (prefers-reduced-motion: no-preference) {
-		@keyframes glisse {
-			from {
-				opacity: 0;
-				transform: translateX(-10px);
-			}
-		}
-		/* Les dix premières seulement : au-delà, la cascade devient une attente. */
-		.inscrits li:nth-child(-n + 10) {
-			animation: glisse var(--moyen) var(--elan) both;
-		}
-		.inscrits li:nth-child(2) {
-			animation-delay: 30ms;
-		}
-		.inscrits li:nth-child(3) {
-			animation-delay: 60ms;
-		}
-		.inscrits li:nth-child(4) {
-			animation-delay: 90ms;
-		}
-		.inscrits li:nth-child(5) {
-			animation-delay: 120ms;
-		}
-		.inscrits li:nth-child(n + 6) {
-			animation-delay: 150ms;
-		}
-	}
-	.inscrits li:last-child {
-		border-bottom: none;
-	}
-	.inscrits li.parti {
-		background: #f7f7f5;
-		margin: 0 -16px;
-		padding: 18px 16px;
-	}
-	.qui {
-		display: flex;
-		gap: 10px;
-		align-items: center;
-		flex-wrap: wrap;
-	}
-	.nom {
-		font-family: var(--titre);
-		font-weight: 800;
-		letter-spacing: -0.02em;
-		font-size: 21px;
-	}
-	.detail {
-		margin: 6px 0 0;
-	}
-	.commande {
-		margin: 4px 0 0;
-		color: var(--encre-douce);
-	}
-	.remarque {
-		margin: 6px 0 0;
-		padding: 8px 12px;
-		background: var(--orange-fond);
-		border-left: 4px solid var(--orange);
-		border-radius: 4px;
-	}
-	.actes {
-		display: flex;
-		gap: 8px;
-		flex-wrap: wrap;
-		margin-top: 12px;
-	}
 
 	.rangee-commande {
 		display: flex;
